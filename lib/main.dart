@@ -8,13 +8,17 @@ import 'Widgets/bottom_nav.dart';
 
 
 Future<void> checkHiveBoxes() async {
+  Hive.registerAdapter(ClassAdapter());
+  Hive.registerAdapter(TimeOfDayAdapter());
+  Hive.registerAdapter(ColorAdapter());
   if(!Hive.isBoxOpen('classes')) {
-    Hive.registerAdapter(ClassAdapter());
+
     await Hive.openBox<Class>('classes');
   }
 
+  Hive.registerAdapter(TaskAdapter());
   if(!Hive.isBoxOpen('tasks')) {
-    Hive.registerAdapter(TaskAdapter());
+
     await Hive.openBox<Task>('tasks');
   }
 }

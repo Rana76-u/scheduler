@@ -45,7 +45,6 @@ class _CRUDClassState extends State<CRUDClass> {
   }
 
   void loadClassDetails() async {
-    final messenger = ScaffoldMessenger.of(context);
 
     setState(() {
       isLoading = true;
@@ -68,13 +67,13 @@ class _CRUDClassState extends State<CRUDClass> {
       noteController.text = classObject.note;
       taskIds = classObject.taskIds;
     }
-    else{
+    /*else{
       messenger.showSnackBar(
           const SnackBar(
               content: Text('An Error Occurred')
           )
       );
-    }
+    }*/
 
     setState(() {
       isLoading = false;
@@ -86,8 +85,11 @@ class _CRUDClassState extends State<CRUDClass> {
       isLoading = true;
     });
 
+    String id = widget.classId ?? generateId();
+    print(id);
+
     Class classObject = Class(
-        classId: generateId(),
+        classId: id,
         classTitle: classTitleController.text,
         roomNumber: roomNumberController.text,
         sectionNumber: sectionController.text,
@@ -111,6 +113,9 @@ class _CRUDClassState extends State<CRUDClass> {
   }
 
   void onClickDelete() async {
+
+    //todo: give a warning before deleting
+    //todo: delete then pop the screen
     setState(() {
       isLoading = false;
     });
