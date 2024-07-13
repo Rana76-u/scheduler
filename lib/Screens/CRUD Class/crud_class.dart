@@ -17,26 +17,115 @@ class CRUDClass extends StatefulWidget {
 }
 
 class _CRUDClassState extends State<CRUDClass> {
+  bool isLoading = false;
 
-  //todo: in the initState if classId is present load then and set to controllers first
   Color selectedColor = Colors.blue;
   TimeOfDay selectedTime = TimeOfDay.now();
 
-  bool isLoading = false;
+  List taskIds = [];
+
+  TextEditingController classTitleController = TextEditingController();
+  TextEditingController roomNumberController = TextEditingController();
+  TextEditingController sectionController = TextEditingController();
+  TextEditingController facultyNameController = TextEditingController();
+  TextEditingController facultyInitialController = TextEditingController();
+  TextEditingController facultyOfficeHourController = TextEditingController();
+  TextEditingController facultyOfficeLocationController = TextEditingController();
+  TextEditingController facultyPhoneNumberController = TextEditingController();
+  TextEditingController facultyEmailController = TextEditingController();
+  TextEditingController noteController = TextEditingController();
+
+  @override
+  void initState() {
+    if(widget.classId != null) {
+      //todo: in the initState if classId is present load then and set to controllers first
+       loadClassDetails();
+    }
+    super.initState();
+  }
+
+  void loadClassDetails() async {
+    final messenger = ScaffoldMessenger.of(context);
+
+    setState(() {
+      isLoading = true;
+    });
+
+    Class? classObject = await HiveApi().getClass(widget.classId!);
+
+    if(classObject != null){
+      classTitleController.text = classObject.classTitle;
+      roomNumberController.text = classObject.roomNumber;
+      sectionController.text = classObject.sectionNumber;
+      facultyNameController.text = classObject.facultyName;
+      facultyInitialController.text = classObject.facultyInitial;
+      facultyOfficeHourController.text = classObject.facultyOfficeHour;
+      facultyOfficeLocationController.text = classObject.facultyOfficeLocation;
+      facultyPhoneNumberController.text = classObject.facultyPhoneNumber;
+      facultyEmailController.text = classObject.facultyEmail;
+      selectedTime = classObject.classTime;
+      selectedColor = classObject.classColor;
+      noteController.text = classObject.note;
+      taskIds = classObject.taskIds;
+    }
+    else{
+      messenger.showSnackBar(
+          const SnackBar(
+              content: Text('An Error Occurred')
+          )
+      );
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void onClickSave() async {
+    setState(() {
+      isLoading = true;
+    });
+
+    Class classObject = Class(
+        classId: generateId(),
+        classTitle: classTitleController.text,
+        roomNumber: roomNumberController.text,
+        sectionNumber: sectionController.text,
+        facultyName: facultyNameController.text,
+        facultyInitial: facultyInitialController.text,
+        facultyOfficeHour: facultyOfficeHourController.text,
+        facultyOfficeLocation: facultyOfficeLocationController.text,
+        facultyPhoneNumber: facultyPhoneNumberController.text,
+        facultyEmail: facultyEmailController.text,
+        classTime: selectedTime,
+        classColor: selectedColor,
+        note: noteController.text,
+        taskIds: []
+    );
+
+    HiveApi().saveOrUpdateClass(classObject);
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  void onClickDelete() async {
+    setState(() {
+      isLoading = false;
+    });
+
+    if(widget.classId != null){
+      HiveApi().deleteClass(widget.classId!);
+    }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
-    TextEditingController classTitleController = TextEditingController();
-    TextEditingController roomNumberController = TextEditingController();
-    TextEditingController sectionController = TextEditingController();
-    TextEditingController facultyNameController = TextEditingController();
-    TextEditingController facultyInitialController = TextEditingController();
-    TextEditingController facultyOfficeHourController = TextEditingController();
-    TextEditingController facultyOfficeLocationController = TextEditingController();
-    TextEditingController facultyPhoneNumberController = TextEditingController();
-    TextEditingController facultyEmailController = TextEditingController();
-    TextEditingController noteController = TextEditingController();
 
     return LoadingOverlay(
       isLoading: isLoading,
@@ -64,26 +153,7 @@ class _CRUDClassState extends State<CRUDClass> {
               child: ElevatedButton(
                 onPressed: () async {
                   // todo: Check Save;
-
-                  Class classObject = Class(
-                      classId: generateId(),
-                      classTitle: classTitleController.text,
-                      roomNumber: roomNumberController.text,
-                      sectionNumber: sectionController.text,
-                      facultyName: facultyNameController.text,
-                      facultyInitial: facultyInitialController.text,
-                      facultyOfficeHour: facultyOfficeHourController.text,
-                      facultyOfficeLocation: facultyOfficeLocationController.text,
-                      facultyPhoneNumber: facultyPhoneNumberController.text,
-                      facultyEmail: facultyEmailController.text,
-                      classTime: selectedTime,
-                      classColor: selectedColor,
-                      note: noteController.text,
-                      taskIds: []
-                  );
-
-                  HiveApi().saveOrUpdateClass(classObject);
-
+                  onClickSave();
                 },
                 style: ButtonStyle(
                     backgroundColor: MaterialStateColor.resolveWith(
@@ -100,9 +170,7 @@ class _CRUDClassState extends State<CRUDClass> {
             GestureDetector(
               onTap: () {
                 // todo: check Delete
-                if(widget.classId != null){
-                  HiveApi().deleteClass(widget.classId!);
-                }
+                onClickDelete();
               },
               child: const Padding(
                 padding: EdgeInsets.only(right: 15),
