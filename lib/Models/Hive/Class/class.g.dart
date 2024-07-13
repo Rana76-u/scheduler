@@ -27,8 +27,8 @@ class ClassAdapter extends TypeAdapter<Class> {
       facultyOfficeLocation: fields[7] as String,
       facultyPhoneNumber: fields[8] as String,
       facultyEmail: fields[9] as String,
-      classTime: fields[10] as DateTime,
-      classColor: fields[11] as DateTime,
+      classTime: fields[10] as TimeOfDay,
+      classColor: fields[11] as Color,
       note: fields[12] as String,
       taskIds: (fields[13] as List).cast<dynamic>(),
     );

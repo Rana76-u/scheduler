@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
+import 'package:scheduler/API/hive_api.dart';
+import 'package:scheduler/API/id_generator.dart';
+import 'package:scheduler/Models/Hive/Class/class.dart';
 import 'package:scheduler/Widgets/bottom_nav.dart';
 
 import '../../Widgets/loading_overlay.dart';
 
 class CRUDClass extends StatefulWidget {
-  const CRUDClass({super.key});
+  final String? classId;
+  const CRUDClass({super.key, this.classId});
 
   @override
   State<CRUDClass> createState() => _CRUDClassState();
 }
 
 class _CRUDClassState extends State<CRUDClass> {
+
+  //todo: in the initState if classId is present load then and set to controllers first
   Color selectedColor = Colors.blue;
   TimeOfDay selectedTime = TimeOfDay.now();
 
@@ -57,7 +63,27 @@ class _CRUDClassState extends State<CRUDClass> {
               padding: const EdgeInsets.only(right: 20),
               child: ElevatedButton(
                 onPressed: () async {
-                  // todo: await uploadInfo();
+                  // todo: Check Save;
+
+                  Class classObject = Class(
+                      classId: generateId(),
+                      classTitle: classTitleController.text,
+                      roomNumber: roomNumberController.text,
+                      sectionNumber: sectionController.text,
+                      facultyName: facultyNameController.text,
+                      facultyInitial: facultyInitialController.text,
+                      facultyOfficeHour: facultyOfficeHourController.text,
+                      facultyOfficeLocation: facultyOfficeLocationController.text,
+                      facultyPhoneNumber: facultyPhoneNumberController.text,
+                      facultyEmail: facultyEmailController.text,
+                      classTime: selectedTime,
+                      classColor: selectedColor,
+                      note: noteController.text,
+                      taskIds: []
+                  );
+
+                  HiveApi().saveOrUpdateClass(classObject);
+
                 },
                 style: ButtonStyle(
                     backgroundColor: MaterialStateColor.resolveWith(
@@ -73,7 +99,10 @@ class _CRUDClassState extends State<CRUDClass> {
             //3Dot Icon
             GestureDetector(
               onTap: () {
-                // todo
+                // todo: check Delete
+                if(widget.classId != null){
+                  HiveApi().deleteClass(widget.classId!);
+                }
               },
               child: const Padding(
                 padding: EdgeInsets.only(right: 15),

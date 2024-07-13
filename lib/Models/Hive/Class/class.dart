@@ -1,5 +1,5 @@
+import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
-
 part 'class.g.dart';
 
 @HiveType(typeId: 0, adapterName: 'ClassAdapter')
@@ -35,10 +35,10 @@ class Class extends HiveObject {
   String facultyEmail;
 
   @HiveField(10)
-  DateTime classTime;
+  TimeOfDay classTime;
 
   @HiveField(11)
-  DateTime classColor;
+  Color classColor;
 
   @HiveField(12)
   String note;
