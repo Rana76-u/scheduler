@@ -38,12 +38,15 @@ class Class extends HiveObject {
   TimeOfDay classTime;
 
   @HiveField(11)
-  Color classColor;
+  List<int> classDays;
 
   @HiveField(12)
-  String note;
+  Color classColor;
 
   @HiveField(13)
+  String note;
+
+  @HiveField(14)
   List taskIds;
 
   Class({
@@ -58,6 +61,7 @@ class Class extends HiveObject {
     required this.facultyPhoneNumber,
     required this.facultyEmail,
     required this.classTime,
+    required this.classDays,
     required this.classColor,
     required this.note,
     required this.taskIds,

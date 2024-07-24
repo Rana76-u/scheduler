@@ -28,16 +28,17 @@ class ClassAdapter extends TypeAdapter<Class> {
       facultyPhoneNumber: fields[8] as String,
       facultyEmail: fields[9] as String,
       classTime: fields[10] as TimeOfDay,
-      classColor: fields[11] as Color,
-      note: fields[12] as String,
-      taskIds: (fields[13] as List).cast<dynamic>(),
+      classDays: (fields[11] as List).cast<int>(),
+      classColor: fields[12] as Color,
+      note: fields[13] as String,
+      taskIds: (fields[14] as List).cast<dynamic>(),
     );
   }
 
   @override
   void write(BinaryWriter writer, Class obj) {
     writer
-      ..writeByte(14)
+      ..writeByte(15)
       ..writeByte(0)
       ..write(obj.classId)
       ..writeByte(1)
@@ -61,10 +62,12 @@ class ClassAdapter extends TypeAdapter<Class> {
       ..writeByte(10)
       ..write(obj.classTime)
       ..writeByte(11)
-      ..write(obj.classColor)
+      ..write(obj.classDays)
       ..writeByte(12)
-      ..write(obj.note)
+      ..write(obj.classColor)
       ..writeByte(13)
+      ..write(obj.note)
+      ..writeByte(14)
       ..write(obj.taskIds);
   }
 

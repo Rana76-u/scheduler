@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
+import 'package:scheduler/API/class_day.dart';
 import 'package:scheduler/API/hive_api.dart';
 import 'package:scheduler/API/id_generator.dart';
 import 'package:scheduler/Models/Hive/Class/class.dart';
 import 'package:scheduler/Widgets/bottom_nav.dart';
 
-import '../../Widgets/loading_overlay.dart';
+import '../../../Widgets/loading_overlay.dart';
 
 class CRUDClass extends StatefulWidget {
   final String? classId;
@@ -21,6 +22,7 @@ class _CRUDClassState extends State<CRUDClass> {
 
   Color selectedColor = Colors.blue;
   TimeOfDay selectedTime = TimeOfDay.now();
+  List<int> classDays = [];
 
   List taskIds = [];
 
@@ -38,7 +40,6 @@ class _CRUDClassState extends State<CRUDClass> {
   @override
   void initState() {
     if(widget.classId != null) {
-      //todo: in the initState if classId is present load then and set to controllers first
        loadClassDetails();
     }
     super.initState();
@@ -63,6 +64,7 @@ class _CRUDClassState extends State<CRUDClass> {
       facultyPhoneNumberController.text = classObject.facultyPhoneNumber;
       facultyEmailController.text = classObject.facultyEmail;
       selectedTime = classObject.classTime;
+      classDays = classObject.classDays;
       selectedColor = classObject.classColor;
       noteController.text = classObject.note;
       taskIds = classObject.taskIds;
@@ -86,7 +88,6 @@ class _CRUDClassState extends State<CRUDClass> {
     });
 
     String id = widget.classId ?? generateId();
-    print(id);
 
     Class classObject = Class(
         classId: id,
@@ -100,6 +101,7 @@ class _CRUDClassState extends State<CRUDClass> {
         facultyPhoneNumber: facultyPhoneNumberController.text,
         facultyEmail: facultyEmailController.text,
         classTime: selectedTime,
+        classDays: classDays,
         classColor: selectedColor,
         note: noteController.text,
         taskIds: []
@@ -110,12 +112,13 @@ class _CRUDClassState extends State<CRUDClass> {
     setState(() {
       isLoading = false;
     });
+
+    Get.to(
+        () => BottomBar(currentIndex: 0)
+    );
   }
 
   void onClickDelete() async {
-
-    //todo: give a warning before deleting
-    //todo: delete then pop the screen
     setState(() {
       isLoading = false;
     });
@@ -157,7 +160,6 @@ class _CRUDClassState extends State<CRUDClass> {
               padding: const EdgeInsets.only(right: 20),
               child: ElevatedButton(
                 onPressed: () async {
-                  // todo: Check Save;
                   onClickSave();
                 },
                 style: ButtonStyle(
@@ -174,8 +176,57 @@ class _CRUDClassState extends State<CRUDClass> {
             //3Dot Icon
             GestureDetector(
               onTap: () {
-                // todo: check Delete
-                onClickDelete();
+                if(widget.classId != null){
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return AlertDialog(
+                        title: const Text("Confirm Delete"),
+                        content: const Text("Are you sure you want to delete?"),
+                        actions: [
+                          TextButton(
+                            onPressed: () {
+                              // Dismiss the dialog
+                              Navigator.pop(context);
+                            },
+                            child: const Text("Cancel"),
+                          ),
+                          TextButton(
+                            onPressed: () async {
+                              final navigator = Navigator.pop(context);
+                              /*setState(() {
+                                _isLoading = true;
+                              });*/
+                              // Dismiss the dialog
+                              if (mounted) {
+                                navigator;
+                              }
+                              // Perform the delete action
+                              onClickDelete();
+
+                              /*setState(() {
+                                _isLoading = false;
+                              });*/
+                              //to home
+                              Get.to(
+                                      () => BottomBar(currentIndex: 0),
+                                  transition: Transition.fade
+                              );
+                            },
+                            child: const Text("Delete"),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+                //if the docId is null that means creating new post
+                else{
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+                      duration: Duration(seconds: 3),
+                      content: Text("The Class hasn't been created yet"))
+                  );
+                }
               },
               child: const Padding(
                 padding: EdgeInsets.only(right: 15),
@@ -208,6 +259,20 @@ class _CRUDClassState extends State<CRUDClass> {
                 //pick time
                 pickTimeWidget(),
 
+                const SizedBox(height: 10,),
+
+                //Select Class Days
+                const Padding(
+                  padding: EdgeInsets.only(left: 10),
+                  child: Text(
+                      'Choose Class Days',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ),
+                classDaysWidget(),
+
                 const SizedBox(height: 5,),
 
                 //pick color
@@ -223,33 +288,39 @@ class _CRUDClassState extends State<CRUDClass> {
   }
 
   Widget textFieldWidget(TextEditingController textEditingController, String hint) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(
-            minHeight: 60,
-            maxHeight: 150
-        ),
-        //height: 60,
-        child: TextField(
-          controller: textEditingController,
-          autofocus: true,
-          autocorrect: false,
-          maxLines: null,
-          decoration: InputDecoration(
-            focusedBorder: const OutlineInputBorder(borderSide: BorderSide.none),
-            enabledBorder: const OutlineInputBorder(borderSide: BorderSide.none),
-            prefixIcon: const Icon(
-              Icons.short_text_rounded,
-              color: Colors.grey,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(hint),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 10, top: 5),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(
+                minHeight: 60,
+                maxHeight: 150
             ),
-            filled: true,
-            fillColor: Colors.grey[100],
-            hintText: hint,
+            //height: 60,
+            child: TextField(
+              controller: textEditingController,
+              autofocus: true,
+              autocorrect: false,
+              maxLines: null,
+              decoration: InputDecoration(
+                focusedBorder: const OutlineInputBorder(borderSide: BorderSide.none),
+                enabledBorder: const OutlineInputBorder(borderSide: BorderSide.none),
+                prefixIcon: const Icon(
+                  Icons.short_text_rounded,
+                  color: Colors.grey,
+                ),
+                filled: true,
+                fillColor: Colors.grey[100],
+                hintText: hint,
+              ),
+              cursorColor: Colors.black,
+            ),
           ),
-          cursorColor: Colors.black,
-        ),
-      ),
+        )
+      ],
     );
   }
 
@@ -317,6 +388,53 @@ class _CRUDClassState extends State<CRUDClass> {
         }
       },
       child: Text('Set Class Time : ${selectedTime.format(context)}'),
+    );
+  }
+
+  Widget classDaysWidget() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15),
+      child: SizedBox(
+        width: double.infinity,
+        height: 50,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          itemCount: 7,
+          itemBuilder: (context, index) {
+            String day = getClassDayToString(index);
+            
+
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  classDays.contains(index) ? classDays.remove(index) : classDays.add(index);
+                });
+              },
+              child: Card(
+                elevation: 0,
+                color: classDays.contains(index) ? Colors.black : Colors.grey.shade200,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(50)
+                ),
+                child: Container(
+                  height: 50,
+                  width: 40,
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: Text(
+                        day,
+                      style: TextStyle(
+                        color: classDays.contains(index) ? Colors.white : Colors.black
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
     );
   }
 }

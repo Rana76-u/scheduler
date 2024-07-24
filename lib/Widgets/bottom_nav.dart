@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:scheduler/Screens/CRUD%20Class/crud_class.dart';
+import 'package:scheduler/Screens/Students/students.dart';
+import '../Screens/CRUD/Task/task.dart';
 import '../Screens/Home Page/homepage.dart';
 import 'package:salomon_bottom_bar/salomon_bottom_bar.dart';
 
@@ -19,7 +20,10 @@ class _BottomBarState extends State<BottomBar> {
       return const HomePage();
     }
     else if(widget.currentIndex == 1){
-      return const CRUDClass();
+      return const TasksPage();
+    }
+    else if(widget.currentIndex == 2){
+      return const StudentsPage();
     }
     return null;
   }
@@ -52,6 +56,13 @@ class _BottomBarState extends State<BottomBar> {
             icon: const Icon(Icons.task_rounded),
             title: const Text("Task"),
             selectedColor: Colors.pink,
+          ),
+
+          /// Students
+          SalomonBottomBarItem(
+            icon: const Icon(Icons.workspaces_rounded),
+            title: const Text("Students"),
+            selectedColor: Colors.deepPurple,
           ),
         ],
       ),

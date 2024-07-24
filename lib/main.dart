@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:hive_flutter/adapters.dart';
 import 'package:scheduler/Models/Hive/Class/class.dart';
 import 'package:scheduler/Models/Hive/Task/task.dart';
+import 'Models/Hive/Student/student.dart';
 import 'Widgets/bottom_nav.dart';
 
 
@@ -11,15 +12,19 @@ Future<void> checkHiveBoxes() async {
   Hive.registerAdapter(ClassAdapter());
   Hive.registerAdapter(TimeOfDayAdapter());
   Hive.registerAdapter(ColorAdapter());
-  if(!Hive.isBoxOpen('classes')) {
 
+  if(!Hive.isBoxOpen('classes')) {
     await Hive.openBox<Class>('classes');
   }
 
   Hive.registerAdapter(TaskAdapter());
   if(!Hive.isBoxOpen('tasks')) {
-
     await Hive.openBox<Task>('tasks');
+  }
+
+  Hive.registerAdapter(StudentAdapter());
+  if(!Hive.isBoxOpen('students')) {
+    await Hive.openBox<Student>('students');
   }
 }
 
@@ -44,7 +49,7 @@ class MyApp extends StatelessWidget {
         fontFamily: 'Urbanist',
       ),
       debugShowCheckedModeBanner: false,
-      home: BottomBar(currentIndex: 1,), //todo: 0
+      home: BottomBar(currentIndex: 2,), //todo
     );
   }
 }
