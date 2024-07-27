@@ -36,6 +36,7 @@ dependencies:
   hive:
   hive_flutter:
   salomon_bottom_bar: ^3.3.2
+  table_calendar: ^3.1.2
   flutter_colorpicker:
 
 dev_dependencies:

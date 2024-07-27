@@ -112,4 +112,20 @@ class HiveApi {
       await taskBox.delete(classKey);
     }
   }
+
+  deleteStudent(String studentId) async {
+    final studentBox = Hive.box<Student>('students');
+
+    final studentKey = studentBox.keys.firstWhere(
+          (key) {
+        final studentObject = studentBox.get(key);
+        return studentObject!.studentId == studentId;
+      },
+      orElse: () => null,
+    );
+
+    if(studentKey != null){
+      await studentBox.delete(studentKey);
+    }
+  }
 }
